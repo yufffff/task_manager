@@ -25,16 +25,13 @@
 </template>
 
 <script>
-import firebase from 'firebase'
-// const db = firebase.firestore();
-// console.log(db);
-
+import firebase from "firebase";
 export default {
   name: "TODO",
   data() {
     return {
       newItemTitle: "",
-      items: []
+      items: [],
     };
   },
   methods: {
@@ -53,19 +50,30 @@ export default {
       this.saveTodo();
     },
     saveTodo: function () {
-      localStorage.setItem("items", JSON.stringify(this.items));
+      var db = firebase.database();
+      db.ref("items").set(this.items);
     },
     loadTodo: function () {
-    // console.log(db);
-    //   this.items = db.ref("items");
-    //   console.log(this.items);
-    //   if (!this.items) {
-    //     this.items = [];
-    //   }
+      var db = firebase.database();
+      db.ref("items").on("value", (data) => {
+        if (data) {
+          const rootList = data.val();
+          // const key = data.key;
+          let list = [];
+
+          if (rootList != null) {
+            Object.keys(rootList).forEach((val/* , key */) => {
+              // rootList[val].id = val;
+              list.push(rootList[val]);
+            });
+            this.items = list;
+          }
+        }
+      });
     },
   },
-    mounted: function () {
-      this.loadTodo();
-    },
+  mounted: function () {
+    this.loadTodo();
+  },
 };
 </script>
