@@ -20,7 +20,7 @@
         {{ item.title }}
       </label>
     </v-list-item>
-    <button v-on:click="deleteTodo()">チェック済みの項目を削除する</button>
+    <v-btn block v-on:click="deleteTodo()">チェック済みの項目を削除する</v-btn>
   </v-container>
 </template>
 
@@ -31,6 +31,7 @@ export default {
   data() {
     return {
       newItemTitle: "",
+      dbPath: "",
       items: [],
     };
   },
@@ -51,11 +52,13 @@ export default {
     },
     saveTodo: function () {
       var db = firebase.database();
-      db.ref("items").set(this.items);
+      db.ref(this.dbPath).set(this.items);
     },
     loadTodo: function () {
+      let uid = firebase.auth().currentUser.uid;
+      this.dbPath = uid + "/items";
       var db = firebase.database();
-      db.ref("items").on("value", (data) => {
+      db.ref(this.dbPath).on("value", (data) => {
         if (data) {
           const rootList = data.val();
           // const key = data.key;
