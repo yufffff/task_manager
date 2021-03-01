@@ -3,6 +3,8 @@ module.exports = {
     'vuetify'
   ],
   outputDir: 'docs',
-  assetsDir: './',
-  publicPath: './task_manager'
+  assetsDir: '/',
+  publicPath: '/task_manager',
+  filenameHashing: false,
+  productionSourceMap: false
 }
