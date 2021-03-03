@@ -2,10 +2,10 @@
   <v-container>
     <v-select
       :items="nav_lists"
+      @change="changeList"
       v-model="selected_list"
       label="選択中のリスト"
-      filled
-      @change="loadTodo"
+      outlined
     ></v-select>
 
     <v-text-field
@@ -23,15 +23,12 @@
       </template>
     </v-text-field>
 
-    <v-list-item v-for="item in items" :key="item.title" clipped>
-      <label v-bind:class="{ done: item.isChecked }">
-        <input
-          type="checkbox"
-          v-model="item.isChecked"
-          v-on:change="saveTodo"
-        />
-        {{ item.title }}
-      </label>
+    <v-list-item v-for="item in items" :key="item.title">
+      <v-checkbox
+        v-model="item.isChecked"
+        :label="item.title"
+        v-on:change="saveTodo"
+      />
     </v-list-item>
 
     <v-footer fixed padless app>
@@ -91,6 +88,7 @@ import firebase from "firebase";
 export default {
   name: "TODO",
   data() {
+    console.log("data");
     return {
       drawer: null,
       dialog: false,
@@ -105,11 +103,14 @@ export default {
   },
   methods: {
     addTodo: function () {
+      console.log("add todo");
+
       if (this.checkItem()) {
         this.items.push({
           title: this.newItemTitle,
           isChecked: false,
         });
+        console.log(this.selected_list);
         this.saveTodo();
       }
       this.newItemTitle = "";
@@ -121,12 +122,11 @@ export default {
       this.saveTodo();
     },
     loadTodo: function () {
-      console.log("loading");
-      let db = firebase.database();
+      console.log("loaded");
 
       this.dbPath = this.uid + "/" + this.selected_list + "/items";
-      
-      db.ref(this.dbPath).on("value", (data) => {
+
+      this.db.ref(this.dbPath).on("value", (data) => {
         if (data) {
           const rootList = data.val();
           let list = [];
@@ -141,18 +141,25 @@ export default {
       });
     },
     saveTodo: function () {
-      let db = firebase.database();
-      db.ref(this.dbPath).set(this.items);
+      console.log("save");
+      this.db.ref(this.dbPath).set(this.items);
     },
     addList: function () {
+      console.log("add list");
       this.nav_lists.push(this.newListName);
       this.selected_list = this.newListName;
       this.items = [];
       this.dialog = false;
       this.loadTodo();
     },
+    changeList: function () {
+      console.log("combo changed");
+      this.loadTodo();
+    },
     changeListName: function () {},
     checkItem: function () {
+      console.log("check item");
+
       let result = true;
 
       try {
@@ -185,23 +192,31 @@ export default {
     },
   },
   mounted: function () {
-    let db = firebase.database();
+    console.log("mounted");
+    this.db = firebase.database();
     this.uid = firebase.auth().currentUser.uid;
-    db.ref(this.uid).on("value", (data) => {
-      if (data.val()) {
-        const rootList = data.val();
-        let list = [];
-        Object.keys(rootList).forEach((key) => {
-          list.push(key);
-        });
-        if (list) {
+    if (this.selected_list.length == 0) {
+      this.db.ref(this.uid).on("value", (data) => {
+        if (data.val()) {
+          const rootList = data.val();
+          let list = [];
+          Object.keys(rootList).forEach((key) => {
+            list.push(key);
+          });
+          console.log(list);
           this.nav_lists = list;
+
+          if (this.nav_lists.length == 0) {
+            this.nav_lists.push("newlist");
+          }
+          
+          if(this.selected_list == "") {
+            this.selected_list = this.nav_lists[0];
+            this.changeList();
+          }
         }
-      }
-      if (this.nav_lists.length == 0) this.nav_lists.push("newlist");
-      this.selected_list = this.nav_lists[0];
-      this.loadTodo();
-    });
+      });
+    }
   },
 };
 </script>
