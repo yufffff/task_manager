@@ -111,8 +111,6 @@ export default {
           isChecked: false,
         });
         this.saveTodo();
-      } else {
-        alert("既に同じタスクが存在します");
       }
       this.newItemTitle = "";
     },
@@ -123,7 +121,7 @@ export default {
       this.saveTodo();
     },
     loadTodo: function () {
-      console.log("loading")
+      console.log("loading");
       let db = firebase.database();
       let list_name = "";
 
@@ -161,15 +159,24 @@ export default {
       this.dialog = false;
       this.loadTodo();
     },
-    changeListName: function () {
-
-    },
+    changeListName: function () {},
     checkItem: function () {
       let result = true;
-      Object.keys(this.items).forEach((key) => {
-        let title = this.items[key].title;
-        if (title == this.newItemTitle) result = false;
-      });
+
+      try {
+        if (!this.selected_list)
+          throw new Error("保存先のリストを選択してください");
+
+        Object.keys(this.items).forEach((key) => {
+          let title = this.items[key].title;
+          if (title == this.newItemTitle)
+            throw new Error("そのタスク名は既に存在しています");
+        });
+      } catch (err) {
+        result = false;
+        alert(err);
+      }
+
       return result;
     },
     signOut: function () {
