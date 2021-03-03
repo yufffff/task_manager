@@ -123,17 +123,9 @@ export default {
     loadTodo: function () {
       console.log("loading");
       let db = firebase.database();
-      let list_name = "";
 
-      if (this.selected_list) {
-        list_name = this.selected_list;
-      } else {
-        list_name = "newlist";
-      }
-
-      console.log(list_name);
-
-      this.dbPath = this.uid + "/" + list_name + "/items";
+      this.dbPath = this.uid + "/" + this.selected_list + "/items";
+      
       db.ref(this.dbPath).on("value", (data) => {
         if (data) {
           const rootList = data.val();
@@ -204,11 +196,11 @@ export default {
         });
         if (list) {
           this.nav_lists = list;
-          this.selected_list = this.nav_lists[0];
-          console.log(this.selected_list);
         }
-        this.loadTodo();
       }
+      if (this.nav_lists.length == 0) this.nav_lists.push("newlist");
+      this.selected_list = this.nav_lists[0];
+      this.loadTodo();
     });
   },
 };
