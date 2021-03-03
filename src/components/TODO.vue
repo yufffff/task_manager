@@ -1,5 +1,13 @@
 <template>
   <v-container>
+    <v-select
+      :items="nav_lists"
+      v-model="selected_list"
+      label="選択中のリスト"
+      filled
+      @change="loadTodo"
+    ></v-select>
+
     <v-text-field
       v-model="newItemTitle"
       label="TODOを入力しましょう！"
@@ -14,8 +22,6 @@
         </v-fade-transition>
       </template>
     </v-text-field>
-
-    <v-list-item> リスト名：{{ selected_list }} </v-list-item>
 
     <v-list-item v-for="item in items" :key="item.title" clipped>
       <label v-bind:class="{ done: item.isChecked }">
@@ -117,6 +123,7 @@ export default {
       this.saveTodo();
     },
     loadTodo: function () {
+      console.log("loading")
       let db = firebase.database();
       let list_name = "";
 
@@ -148,12 +155,15 @@ export default {
       db.ref(this.dbPath).set(this.items);
     },
     addList: function () {
+      this.nav_lists.push(this.newListName);
       this.selected_list = this.newListName;
       this.items = [];
       this.dialog = false;
-      setTimeout(this.loadTodo());
+      this.loadTodo();
     },
-    changeListName: function () {},
+    changeListName: function () {
+
+    },
     checkItem: function () {
       let result = true;
       Object.keys(this.items).forEach((key) => {
@@ -185,16 +195,14 @@ export default {
         Object.keys(rootList).forEach((key) => {
           list.push(key);
         });
-        this.nav_lists = list;
-      console.log(list)
+        if (list) {
+          this.nav_lists = list;
+          this.selected_list = this.nav_lists[0];
+          console.log(this.selected_list);
+        }
+        this.loadTodo();
       }
     });
-    
-    if (this.nav_lists) {
-      this.selected_list = this.nav_lists[0];
-      console.log(this.selected_list)
-      this.loadTodo();
-    }
   },
 };
 </script>
