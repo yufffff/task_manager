@@ -5,6 +5,7 @@
         <v-text-field
           placeholder="TODOを入力しましょう！"
           v-model="newItemTitle"
+          v-on:keyup.enter="addTodo"
         ></v-text-field>
         <v-btn color="primary" dark class="mb-2" @click="addTodo()">追加</v-btn>
       </v-card-title>
@@ -20,7 +21,14 @@
         {{ item.title }}
       </label>
     </v-list-item>
-    <v-btn block v-on:click="deleteTodo()">チェック済みの項目を削除する</v-btn>
+
+    <v-footer fixed padless>
+      <v-card flat tile width="100%">
+        <v-btn block v-on:click="deleteTodo()"
+          >チェック済みの項目を削除する</v-btn
+        >
+      </v-card>
+    </v-footer>
   </v-container>
 </template>
 
@@ -65,7 +73,7 @@ export default {
           let list = [];
 
           if (rootList != null) {
-            Object.keys(rootList).forEach((val/* , key */) => {
+            Object.keys(rootList).forEach((val /* , key */) => {
               // rootList[val].id = val;
               list.push(rootList[val]);
             });
