@@ -24,14 +24,14 @@
 </template>
 
 <script>
-import firebase from 'firebase';
+import firebase from "firebase";
 
 export default {
-  name: 'Signup',
+  name: "Signup",
   data() {
     return {
-      username: '',
-      password: '',
+      username: "",
+      password: "",
     };
   },
   methods: {
@@ -40,8 +40,8 @@ export default {
         .auth()
         .createUserWithEmailAndPassword(this.username, this.password)
         .then((user) => {
-        //   alert('Create account: ', user.email);
-          this.$router.replace('/signin');
+          //   alert('Create account: ', user.email);
+          this.$router.replace("/signin");
         })
         .catch((error) => {
           alert(error.message);
