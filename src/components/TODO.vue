@@ -36,6 +36,7 @@
         <v-dialog v-model="dialog" persistent max-width="600px">
           <template v-slot:activator="{ on, attrs }">
             <v-btn v-bind="attrs" v-on="on"
+              ><span>新規リスト</span
               ><v-icon>mdi-text-box-plus-outline</v-icon></v-btn
             >
           </template>
@@ -75,8 +76,12 @@
           </v-card>
         </v-dialog>
 
-        <v-btn v-on:click="deleteTodo()"><v-icon>mdi-delete</v-icon></v-btn>
-        <v-btn v-on:click="signOut()"><v-icon>mdi-logout</v-icon></v-btn>
+        <v-btn v-on:click="deleteTodo()"
+          ><span>チェック済</span><v-icon>mdi-delete</v-icon></v-btn
+        >
+        <v-btn v-on:click="signOut()"
+          ><span>ログアウト</span><v-icon>mdi-logout</v-icon></v-btn
+        >
       </v-bottom-navigation>
     </v-footer>
   </v-container>
@@ -206,11 +211,16 @@ export default {
           console.log(list);
           this.nav_lists = list;
 
-          if (this.nav_lists.length == 0) {
-            this.nav_lists.push("newlist");
+          if (this.selected_list == "") {
+            this.selected_list = this.nav_lists[0];
+            this.changeList();
           }
-          
-          if(this.selected_list == "") {
+        } else {
+          console.log("no data");
+          if (this.nav_lists.length == 0) {
+            this.nav_lists.push("新規リスト");
+          }
+          if (this.selected_list == "") {
             this.selected_list = this.nav_lists[0];
             this.changeList();
           }
