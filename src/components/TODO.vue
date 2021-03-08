@@ -23,22 +23,73 @@
       </template>
     </v-text-field>
 
-    <v-list-item v-for="item in items" :key="item.title">
-      <v-checkbox
-        v-model="item.isChecked"
-        :label="item.title"
-        v-on:change="saveTodo"
-      />
-    </v-list-item>
+    <draggable
+      v-model="items"
+      @change="saveTodo"
+      handle=".sort"
+      animation="200"
+    >
+      <template v-for="(item, i) in items">
+        <v-list-item :key="`${i}`">
+          <v-list-item-action>
+            <v-checkbox
+              v-model="item.isChecked"
+              :label="item.title"
+              :color="(item.isChecked && 'grey') || 'primary'"
+              v-on:change="saveTodo"
+            />
+          </v-list-item-action>
+          <v-spacer></v-spacer>
+          <!-- <v-dialog
+            v-model="edit"
+            persistent
+            max-width="600px"
+            v-if="sortable == false"
+          >
+            <template v-slot:activator="{ on, attrs }">
+              <v-icon v-bind="attrs" v-on="on">mdi-dots-horizontal</v-icon>
+            </template>
+            <v-card>
+              <v-card-title>
+                <span class="headline">編集</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12" sm="6" md="4">
+                      <v-text-field
+                        v-model="editing.title"
+                        label="タスク名"
+                        required
+                      ></v-text-field>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="blue darken-1" text @click="edit = false;editing = {}">
+                  キャンセル
+                </v-btn>
+                <v-btn color="blue darken-1" text @click="edit = false;editing = {}">
+                  保存
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog> -->
+          <v-icon class="sort" v-if="sortable == true">mdi-menu</v-icon>
+        </v-list-item>
+      </template>
+    </draggable>
 
     <v-footer fixed padless app>
       <v-bottom-navigation>
-        <v-dialog v-model="dialog" persistent max-width="600px">
+        <v-dialog v-model="newlist" persistent max-width="600px">
           <template v-slot:activator="{ on, attrs }">
-            <v-btn v-bind="attrs" v-on="on"
-              ><span>新規リスト</span
-              ><v-icon>mdi-text-box-plus-outline</v-icon></v-btn
-            >
+            <v-btn v-bind="attrs" v-on="on">
+              <span>新規リスト</span>
+              <v-icon>mdi-text-box-plus-outline</v-icon>
+            </v-btn>
           </template>
           <v-card>
             <v-card-title>
@@ -63,7 +114,7 @@
                 color="blue darken-1"
                 text
                 @click="
-                  dialog = false;
+                  newlist = false;
                   newListName = '';
                 "
               >
@@ -76,6 +127,12 @@
           </v-card>
         </v-dialog>
 
+        <v-btn v-on:click="sortable = !sortable">
+          <span v-if="sortable != true">編集モード</span>
+          <span v-if="sortable == true">並替モード</span>
+          <v-icon v-if="sortable != true">mdi-wrench</v-icon>
+          <v-icon v-if="sortable == true">mdi-sort</v-icon>
+        </v-btn>
         <v-btn v-on:click="deleteTodo()"
           ><span>チェック済</span><v-icon>mdi-delete</v-icon></v-btn
         >
@@ -90,17 +147,23 @@
 
 <script>
 import firebase from "firebase";
+import draggable from "vuedraggable";
 export default {
   name: "TODO",
+  components: {
+    draggable,
+  },
   data() {
     console.log("data");
     return {
-      drawer: null,
-      dialog: false,
       newItemTitle: "",
+      newlist: false,
       newListName: "",
-      db: {},
+      edit: false,
+      editing: {},
+      sortable: false,
       uid: "",
+      db: {},
       nav_lists: [],
       selected_list: "",
       items: [],
@@ -154,7 +217,7 @@ export default {
       this.nav_lists.push(this.newListName);
       this.selected_list = this.newListName;
       this.items = [];
-      this.dialog = false;
+      this.newlist = false;
       this.loadTodo();
     },
     changeList: function () {
@@ -208,7 +271,7 @@ export default {
           Object.keys(rootList).forEach((key) => {
             list.push(key);
           });
-          console.log(list);
+          // console.log(list);
           this.nav_lists = list;
 
           if (this.selected_list == "") {
