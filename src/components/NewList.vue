@@ -3,7 +3,7 @@
     <template v-slot:activator="{ on, attrs }">
       <v-btn v-bind="attrs" v-on="on">
         <span>新規リスト</span>
-        <v-icon>mdi-text-box-plus-outline</v-icon>
+        <v-icon>mdi-playlist-plus</v-icon>
       </v-btn>
     </template>
     <v-card>
@@ -25,7 +25,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="newlist = false">
+        <v-btn color="blue darken-1" text @click="newlist = false;">
           キャンセル
         </v-btn>
         <v-btn

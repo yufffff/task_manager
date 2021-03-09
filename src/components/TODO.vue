@@ -7,7 +7,7 @@
       label="選択中のリスト"
       outlined
     ></v-select>
-
+    
     <v-text-field
       v-model="newItemTitle"
       label="TODOを入力しましょう！"
@@ -49,6 +49,7 @@
     <v-footer fixed padless app>
       <v-bottom-navigation>
         <NewList v-on:addList="addList" />
+        <EditList :editing="selected_list" v-on:changeListName="changeListName" />
 
         <v-btn v-on:click="sortable = !sortable">
           <span v-if="sortable != true">編集モード</span>
@@ -65,20 +66,21 @@
       </v-bottom-navigation>
     </v-footer>
   </v-container>
-  <!-- </v-card> -->
 </template>
 
 <script>
 import firebase from "firebase";
 import draggable from "vuedraggable";
-import EditTODO from "../components/EditTODO";
-import NewList from "../components/NewList";
+import EditTODO from "@/components/EditTODO";
+import EditList from "@/components/EditList";
+import NewList from "@/components/NewList";
 
 export default {
   name: "TODO",
   components: {
     draggable,
     EditTODO,
+    EditList,
     NewList,
   },
   data() {
@@ -148,7 +150,15 @@ export default {
       console.log("combo changed");
       this.loadTodo();
     },
-    changeListName: function () {},
+    changeListName: function (newListName) {
+      console.log("change list name");
+      let dbPath = this.uid + "/" + newListName + "/items";
+      this.db.ref(dbPath).set(this.items);
+      this.db.ref(this.uid + "/" + this.selected_list).remove();
+
+      this.selected_list = newListName;
+
+    },
     checkItem: function () {
       console.log("check item");
 

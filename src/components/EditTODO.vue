@@ -60,6 +60,10 @@ export default {
   methods: {
     editTodo: function () {
       console.log("edit");
+      if (this.newItemName == "") {
+        alert("タスク名を入力してください");
+        return;
+      } 
       this.editing.title = this.newItemName;
       this.$emit('saveTodo');
       this.edit=false;
