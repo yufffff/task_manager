@@ -3,7 +3,6 @@
     v-model="edit"
     persistent
     max-width="600px"
-    v-if="sortable == false"
   >
     <template v-slot:activator="{ on, attrs }">
       <v-icon v-bind="attrs" v-on="on">mdi-dots-horizontal</v-icon>
@@ -55,7 +54,6 @@ export default {
   },
   props: {
     editing: {},
-    sortable: false,
   },
   methods: {
     editTodo: function () {
@@ -63,10 +61,10 @@ export default {
       if (this.newItemName == "") {
         alert("タスク名を入力してください");
         return;
-      } 
+      }
       this.editing.title = this.newItemName;
-      this.$emit('saveTodo');
-      this.edit=false;
+      this.$emit("saveTodo");
+      this.edit = false;
     },
   },
 };

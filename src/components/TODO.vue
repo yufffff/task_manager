@@ -1,5 +1,10 @@
 <template>
-  <v-container>
+  <v-container
+    v-on:click.prevent="
+      swiped = false;
+      eventIndex = null;
+    "
+  >
     <v-select
       :items="nav_lists"
       @change="changeList"
@@ -7,7 +12,7 @@
       label="選択中のリスト"
       outlined
     ></v-select>
-    
+
     <v-text-field
       v-model="newItemTitle"
       label="TODOを入力しましょう！"
@@ -30,7 +35,12 @@
       animation="200"
     >
       <template v-for="(item, i) in items">
-        <v-list-item :key="`${i}`">
+        <v-list-item
+          :key="`${i}`"
+          v-touch="{
+            left: () => onSwipe(`${i}`),
+          }"
+        >
           <v-checkbox
             v-model="item.isChecked"
             :label="item.title"
@@ -39,9 +49,27 @@
           />
           <v-spacer></v-spacer>
 
-          <EditTODO :editing="item" :sortable="sortable" v-on:saveTodo="saveTodo"/>
+          <EditTODO
+            v-if="eventIndex != `${i}` && sortable == false"
+            :editing="item"
+            :sortable="sortable"
+            v-on:saveTodo="saveTodo"
+          />
 
-          <v-icon class="sort" v-if="sortable == true">mdi-menu</v-icon>
+          <v-icon class="sort" v-if="sortable == true && swiped == false"
+            >mdi-menu</v-icon
+          >
+
+          <!-- <v-btn color="red" tile><v-icon color="white">mdi-trash-can-outline</v-icon></v-btn> -->
+          <v-slide-x-reverse-transition>
+            <v-btn
+              color="red"
+              tile
+              v-if="!sortable && swiped && eventIndex == `${i}`"
+              v-on:click="deleteTodo(eventIndex)"
+              ><span class="white--text">削除</span></v-btn
+            >
+          </v-slide-x-reverse-transition>
         </v-list-item>
       </template>
     </draggable>
@@ -49,7 +77,10 @@
     <v-footer fixed padless app>
       <v-bottom-navigation>
         <NewList v-on:addList="addList" />
-        <EditList :editing="selected_list" v-on:changeListName="changeListName" />
+        <EditList
+          :editing="selected_list"
+          v-on:changeListName="changeListName"
+        />
 
         <v-btn v-on:click="sortable = !sortable">
           <span v-if="sortable != true">編集モード</span>
@@ -57,7 +88,7 @@
           <v-icon v-if="sortable != true">mdi-wrench</v-icon>
           <v-icon v-if="sortable == true">mdi-sort</v-icon>
         </v-btn>
-        <v-btn v-on:click="deleteTodo()"
+        <v-btn v-on:click="deleteCheckedAll()"
           ><span>チェック済</span><v-icon>mdi-delete</v-icon></v-btn
         >
         <v-btn v-on:click="signOut()"
@@ -88,6 +119,8 @@ export default {
       newItemTitle: "",
       editing: {},
       sortable: false,
+      swiped: false,
+      eventIndex: null,
       uid: "",
       db: {},
       nav_lists: [],
@@ -96,6 +129,12 @@ export default {
     };
   },
   methods: {
+    onSwipe: function (eventIndex) {
+      this.swiped = false;
+      if (this.sortable) return;
+      this.eventIndex = eventIndex;
+      this.swiped = true;
+    },
     addTodo: function () {
       console.log("add todo");
 
@@ -109,7 +148,12 @@ export default {
       }
       this.newItemTitle = "";
     },
-    deleteTodo: function () {
+    deleteTodo: function (eventIndex) {
+      console.log("delete todo");
+      this.db.ref(this.dbPath + "/" + eventIndex).remove();
+      this.saveTodo();
+    },
+    deleteCheckedAll: function () {
       this.items = this.items.filter(function (item) {
         return item.isChecked === false;
       });
@@ -157,7 +201,6 @@ export default {
       this.db.ref(this.uid + "/" + this.selected_list).remove();
 
       this.selected_list = newListName;
-
     },
     checkItem: function () {
       console.log("check item");
