@@ -196,9 +196,15 @@ export default {
     },
     changeListName: function (newListName) {
       console.log("change list name");
+      let oldListName = this.selected_list;
       let dbPath = this.uid + "/" + newListName + "/items";
       this.db.ref(dbPath).set(this.items);
+      console.log(this.selected_list);
+
       this.db.ref(this.uid + "/" + this.selected_list).remove();
+      this.nav_lists.filter(function (list) {
+        return oldListName !== list;
+      });
 
       this.selected_list = newListName;
     },
