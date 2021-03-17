@@ -82,16 +82,16 @@
           v-on:changeListName="changeListName"
         />
 
-        <v-btn v-on:click="sortable = !sortable" min-width="0">
+        <v-btn v-on:click="sortable = !sortable" fixed>
           <span v-if="sortable != true">編集モード</span>
           <span v-if="sortable == true">並替モード</span>
           <v-icon v-if="sortable != true">mdi-wrench</v-icon>
           <v-icon v-if="sortable == true">mdi-sort</v-icon>
         </v-btn>
-        <v-btn v-on:click="deleteCheckedAll()" min-width="0"
+        <v-btn v-on:click="deleteCheckedAll()" fixed
           ><span>チェック済</span><v-icon>mdi-delete</v-icon></v-btn
         >
-        <v-btn v-on:click="signOut()" min-width="0"
+        <v-btn v-on:click="signOut()" fixed
           ><span>ログアウト</span><v-icon>mdi-logout</v-icon></v-btn
         >
       </v-bottom-navigation>
