@@ -5,7 +5,7 @@
     max-width="600px"
   >
     <template v-slot:activator="{ on, attrs }">
-      <v-btn v-bind="attrs" v-on="on" fixed>
+      <v-btn v-bind="attrs" v-on="on" min-width="0">
         <span>リスト名変更</span>
         <v-icon>mdi-playlist-edit</v-icon>
       </v-btn>

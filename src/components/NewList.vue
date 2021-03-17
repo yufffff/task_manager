@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="newlist" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn v-bind="attrs" v-on="on" fixed>
+      <v-btn v-bind="attrs" v-on="on" min-width="0">
         <span>新規リスト</span>
         <v-icon>mdi-playlist-plus</v-icon>
       </v-btn>
