@@ -1,4 +1,5 @@
 <template>
+  <!-- 新規リスト追加ダイアログ -->
   <v-dialog v-model="newlist" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-btn icon v-bind="attrs" v-on="on">
@@ -39,12 +40,13 @@ export default {
   name: "NewList",
   data() {
     return {
-      newlist: false,
-      newListName: "",
+      newlist: false,   // ダイアログ表示フラグ
+      newListName: "",  // 新規リストの名称
     };
   },
   methods: {
     addList: function () {
+      // 親画面のリスト追加関数呼び出し
       this.$emit("addList", this.newListName);
       this.newlist = false;
       this.newListName = "";

@@ -1,4 +1,5 @@
 <template>
+  <!-- リスト名変更ダイアログ -->
   <v-dialog v-model="edit" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-btn icon v-bind="attrs" v-on="on">
@@ -40,14 +41,15 @@ export default {
   name: "EditList",
   data() {
     return {
-      edit: false,
-      newListName: "",
+      edit: false,      // ダイアログ表示フラグ
+      newListName: "",  // 変更後のリスト名
     };
   },
   props: {
-    editing: "",
+    editing: "",  // 変更前のリスト名
   },
   methods: {
+    // 親画面のリスト名変更関数を呼び出す
     editList: function () {
       console.log("edit list");
       if (this.editing == this.newListName) {
@@ -61,11 +63,13 @@ export default {
       this.$emit("changeListName", this.newListName);
       this.close();
     },
+    // ダイアログクローズ
     close: function () {
       this.newListName = "";
       this.edit = false;
     },
   },
+  // 読み込み時テキストフィールドを空にする
   mounted: function () {
     this.newListName = "";
   },

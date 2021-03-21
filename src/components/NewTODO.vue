@@ -1,4 +1,5 @@
 <template>
+  <!-- 新規タスク追加ダイアログ -->
   <v-dialog v-model="newTodo" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-fab-transition>
@@ -43,19 +44,17 @@ export default {
   name: "NewTODO",
   data() {
     return {
-      newTodo: false,
-      newItemTitle: "",
+      newTodo: false,   // ダイアログ表示フラグ
+      newItemTitle: "", // タスク名称
     };
   },
   methods: {
+    // 親画面のタスク追加関数を呼び出す
     addTodo: function () {
       this.$emit("addTodo", this.newItemTitle);
       this.newTodo = false;
       this.newItemTitle = "";
     },
   },
-  // mounted () {
-  //   this.$refs.newItemTitle.focus();
-  // }
 };
 </script>

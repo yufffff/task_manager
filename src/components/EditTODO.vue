@@ -1,4 +1,5 @@
 <template>
+  <!-- タスク名編集ダイアログ -->
   <v-dialog v-model="edit" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-icon v-bind="attrs" v-on="on">mdi-dots-horizontal</v-icon>
@@ -40,14 +41,15 @@ export default {
   name: "EditTODO",
   data() {
     return {
-      edit: false,
-      newItemName: "",
+      edit: false,      // ダイアログ表示フラグ
+      newItemName: "",  // 変更後のタスク名
     };
   },
   props: {
-    editing: {},
+    editing: {},  // 変更中のタスクオブジェクト
   },
   methods: {
+    // 親画面のタスク名変更関数を呼び出す
     editTodo: function () {
       console.log("edit");
       if (this.newItemName == "") {

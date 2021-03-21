@@ -161,12 +161,14 @@ export default {
     // TODOリストを取得
     loadTodo: function () {
       console.log("loadTodo");
+      // アイテム初期化
       this.items = [];
 
       // 選択中のリストが空の場合はタスクリストの1番目をセット
       if (this.selected_list === "") this.selected_list = this.aryLists[0];
       this.dbPath = this.uid + "/" + this.selected_list + "/items";
 
+      // 選択中のリストに格納されたTODOを取得する
       this.db.ref(this.dbPath).on("value", (data) => {
         let list = [];
         if (data) {
@@ -179,6 +181,7 @@ export default {
             });
           }
         }
+        // アイテムに渡す
         this.items = list;
       });
     },
@@ -193,33 +196,40 @@ export default {
       this.aryLists.push(newListName);
       this.selected_list = newListName;
       this.items = [];
-      this.newlist = false;
+      this.newlist = false; // ダイアログを閉じる
       this.loadTodo();
     },
     // リストセレクトボックス変更リスナー
     changeList: function () {
       console.log("changeList");
+      // セレクトボックスの値をもとにデータを取得する
       this.loadTodo();
     },
     // リスト名変更
     changeListName: function (newListName) {
       if (this.aryLists.length > 1) {
         console.log("複数リスト")
+        // 変更前のリスト名を保持
         let oldListName = this.selected_list;
+        // 変更後のリスト名をキーにアイテムを保存
         let dbPath = this.uid + "/" + newListName + "/items";
         this.db.ref(dbPath).set(this.items);
 
+        // 変更前のキーを削除
         this.db.ref(this.uid + "/" + this.selected_list).remove();
+        // リストから変更前のリスト名を削除
         this.aryLists.filter(function (list) {
           return oldListName !== list;
         });
+        // リスト名をセレクトボックスに反映
         this.selected_list = newListName;
 
       } else {
+        alert("申し訳ございません。\r\n新規リストの名前変更は現在対応中です。")
         console.log("新規リストのみ")
-        this.aryLists[0] = newListName;
+        // this.aryLists[0] = newListName;
         console.log(this.aryLists[0]);
-        this.selected_list = newListName;
+        // this.selected_list = newListName;
       }
     },
     // タスク名変更時にタスク名が正しいかチェックする
@@ -227,11 +237,14 @@ export default {
       let result = true;
 
       try {
+        // 選択中のリストがない場合
         if (!this.selected_list)
           throw new Error("保存先のリストを選択してください");
 
+        // タスク名が空の場合
         if (newItemTitle === "") throw new Error("タスク名が空っぽ！");
 
+        // タスク名が重複している場合
         Object.keys(this.items).forEach((key) => {
           let title = this.items[key].title;
           if (title == newItemTitle)
@@ -257,8 +270,10 @@ export default {
   // 画面読み込み時に呼び出される
   mounted: function () {
     console.log("mounted");
-    this.db = firebase.database();
-    this.uid = firebase.auth().currentUser.uid;
+    this.db = firebase.database();  // firebase realtime database インスタンス
+    this.uid = firebase.auth().currentUser.uid; // ログイン中のユーザID
+
+    // ユーザに紐づくタスクリストを取得
     this.db.ref(this.uid).on("value", (data) => {
       if (data.val()) {
         const rootList = data.val();
@@ -266,14 +281,18 @@ export default {
         Object.keys(rootList).forEach((key) => {
           list.push(key);
         });
+        // リストに格納
         this.aryLists = list;
         console.log("データ取得");
       }
+
+      // ユーザに紐づくタスクリストがない場合
       if (this.aryLists.length === 0) {
         this.aryLists.push("新規リスト");
         console.log("タスクリストなし");
       }
 
+      // リストに紐づくTODOを表示
       this.loadTodo();
     });
   },

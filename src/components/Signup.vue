@@ -1,4 +1,5 @@
 <template>
+  <!-- アカウント登録画面 -->
   <v-card class="mx-auto" max-width="500">
     <v-card-text>
       <v-text-field
@@ -31,11 +32,12 @@ export default {
   name: "Signup",
   data() {
     return {
-      username: "",
-      password: "",
+      username: "", // ユーザ名
+      password: "", // パスワード
     };
   },
   methods: {
+    // ユーザ登録
     signUp: function () {
       firebase
         .auth()
