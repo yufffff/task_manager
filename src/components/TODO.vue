@@ -5,28 +5,24 @@
       eventIndex = null;
     "
   >
-    <v-select
-      :items="nav_lists"
-      @change="changeList"
-      v-model="selected_list"
-      label="選択中のリスト"
-      outlined
-    ></v-select>
-
-    <v-text-field
-      v-model="newItemTitle"
-      label="TODOを入力しましょう！"
-      solo
-      v-on:keyup.enter="addTodo"
-    >
-      <template v-slot:append>
-        <v-fade-transition>
-          <v-icon v-if="newItemTitle" @click="addTodo()">
-            mdi-plus-circle-outline
-          </v-icon>
-        </v-fade-transition>
-      </template>
-    </v-text-field>
+    <v-app-bar app color="primary" dark>
+      <v-toolbar-items max-width="250px">
+        <v-select
+          filled
+          dense
+          :items="aryLists"
+          @change="changeList"
+          v-model="selected_list"
+          label="選択中のリスト"
+        ></v-select>
+        <NewList v-on:addList="addList" />
+        <EditList
+          :editing="selected_list"
+          v-on:changeListName="changeListName"
+        />
+      </v-toolbar-items>
+      <v-spacer />
+    </v-app-bar>
 
     <draggable
       v-model="items"
@@ -35,6 +31,7 @@
       animation="200"
     >
       <template v-for="(item, i) in items">
+        <!-- <v-divider :key="`${i}`" v-if="i !== 0"></v-divider> -->
         <v-list-item
           :key="`${i}`"
           v-touch="{
@@ -60,7 +57,6 @@
             >mdi-menu</v-icon
           >
 
-          <!-- <v-btn color="red" tile><v-icon color="white">mdi-trash-can-outline</v-icon></v-btn> -->
           <v-slide-x-reverse-transition>
             <v-btn
               color="red"
@@ -75,55 +71,54 @@
     </draggable>
 
     <v-footer fixed padless app>
+      <NewTODO v-on:addTodo="addTodo" />
       <v-bottom-navigation>
-        <NewList v-on:addList="addList" />
-        <EditList
-          :editing="selected_list"
-          v-on:changeListName="changeListName"
-        />
-
-        <v-btn v-on:click="sortable = !sortable" min-width="0">
-          <span v-if="sortable != true">編集モード</span>
-          <span v-if="sortable == true">並替モード</span>
-          <v-icon v-if="sortable != true">mdi-wrench</v-icon>
-          <v-icon v-if="sortable == true">mdi-sort</v-icon>
+        <v-btn v-on:click="sortable = !sortable">
+          <span v-if="sortable != true">並替</span>
+          <span v-if="sortable == true">編集</span>
+          <v-icon v-if="sortable == true">mdi-wrench</v-icon>
+          <v-icon v-if="sortable != true">mdi-sort</v-icon>
         </v-btn>
-        <v-btn v-on:click="deleteCheckedAll()" min-width="0"
-          ><span>チェック済</span><v-icon>mdi-delete</v-icon></v-btn
-        >
-        <v-btn v-on:click="signOut()" min-width="0"
-          ><span>ログアウト</span><v-icon>mdi-logout</v-icon></v-btn
-        >
+        <v-btn v-on:click="deleteCheckedAll()">
+          <span>完了</span><v-icon>mdi-delete</v-icon>
+        </v-btn>
+        <v-btn v-on:click="signOut()">
+          <span>ログアウト</span><v-icon>mdi-logout</v-icon>
+        </v-btn>
+
+        <v-spacer></v-spacer>
       </v-bottom-navigation>
     </v-footer>
   </v-container>
 </template>
 
 <script>
-import firebase from "firebase";
+import firebase from "firebase/app";
+import "firebase/database";
 import draggable from "vuedraggable";
+import NewTODO from "@/components/NewTODO";
 import EditTODO from "@/components/EditTODO";
-import EditList from "@/components/EditList";
 import NewList from "@/components/NewList";
+import EditList from "@/components/EditList";
 
 export default {
   name: "TODO",
   components: {
     draggable,
+    NewTODO,
     EditTODO,
     EditList,
     NewList,
   },
   data() {
     return {
-      newItemTitle: "",
       editing: {},
-      sortable: false,
+      sortable: true,
       swiped: false,
       eventIndex: null,
       uid: "",
       db: {},
-      nav_lists: [],
+      aryLists: [],
       selected_list: "",
       items: [],
     };
@@ -135,23 +130,23 @@ export default {
       this.eventIndex = eventIndex;
       this.swiped = true;
     },
-    addTodo: function () {
+    addTodo: function (newItemTitle) {
       console.log("add todo");
 
-      if (this.checkItem()) {
+      if (this.checkItem(newItemTitle)) {
         this.items.push({
-          title: this.newItemTitle,
+          title: newItemTitle,
           isChecked: false,
         });
         console.log(this.selected_list);
         this.saveTodo();
       }
-      this.newItemTitle = "";
     },
     deleteTodo: function (eventIndex) {
       console.log("delete todo");
+      console.log(eventIndex);
       this.db.ref(this.dbPath + "/" + eventIndex).remove();
-      this.saveTodo();
+      this.loadTodo();
     },
     deleteCheckedAll: function () {
       this.items = this.items.filter(function (item) {
@@ -161,21 +156,25 @@ export default {
     },
     loadTodo: function () {
       console.log("loaded");
+      console.log(this.aryLists);
 
+      this.items = [];
+
+      // if (this.selected_list === "") this.selected_list = this.aryLists[0];
       this.dbPath = this.uid + "/" + this.selected_list + "/items";
 
       this.db.ref(this.dbPath).on("value", (data) => {
+        let list = [];
         if (data) {
           const rootList = data.val();
-          let list = [];
 
           if (rootList != null) {
             Object.keys(rootList).forEach((key) => {
               list.push(rootList[key]);
             });
-            this.items = list;
           }
         }
+        this.items = list;
       });
     },
     saveTodo: function () {
@@ -184,8 +183,8 @@ export default {
     },
     addList: function (newListName) {
       console.log("add list");
-      this.nav_lists.push(newListName);
-      this.selected_list = this.newListName;
+      this.aryLists.push(newListName);
+      this.selected_list = newListName;
       this.items = [];
       this.newlist = false;
       this.loadTodo();
@@ -196,19 +195,27 @@ export default {
     },
     changeListName: function (newListName) {
       console.log("change list name");
-      let oldListName = this.selected_list;
-      let dbPath = this.uid + "/" + newListName + "/items";
-      this.db.ref(dbPath).set(this.items);
-      console.log(this.selected_list);
+      console.log(this.aryLists.length);
 
-      this.db.ref(this.uid + "/" + this.selected_list).remove();
-      this.nav_lists.filter(function (list) {
-        return oldListName !== list;
-      });
+      if (this.aryLists.length > 1) {
+        let oldListName = this.selected_list;
+        let dbPath = this.uid + "/" + newListName + "/items";
+        this.db.ref(dbPath).set(this.items);
+        console.log(this.selected_list);
 
-      this.selected_list = newListName;
+        this.db.ref(this.uid + "/" + this.selected_list).remove();
+        this.aryLists.filter(function (list) {
+          return oldListName !== list;
+        });
+      } else {
+        console.log(this.aryLists[0]);
+        this.aryLists[0] = newListName;
+        console.log(this.aryLists[0]);
+      }
+      // this.selected_list = newListName;
+      // console.log(this.selected_list);
     },
-    checkItem: function () {
+    checkItem: function (newItemTitle) {
       console.log("check item");
 
       let result = true;
@@ -217,9 +224,11 @@ export default {
         if (!this.selected_list)
           throw new Error("保存先のリストを選択してください");
 
+        if (newItemTitle === "") throw new Error("タスク名が空っぽ！");
+
         Object.keys(this.items).forEach((key) => {
           let title = this.items[key].title;
-          if (title == this.newItemTitle)
+          if (title == newItemTitle)
             throw new Error("そのタスク名は既に存在しています");
         });
       } catch (err) {
@@ -230,10 +239,6 @@ export default {
       return result;
     },
     signOut: function () {
-      if (this.isSignIn == false) return;
-
-      this.nav_lists = [];
-
       firebase
         .auth()
         .signOut()
@@ -245,34 +250,22 @@ export default {
   mounted: function () {
     console.log("mounted");
     this.db = firebase.database();
+    let db = this.db;
     this.uid = firebase.auth().currentUser.uid;
-    if (this.selected_list.length == 0) {
-      this.db.ref(this.uid).on("value", (data) => {
-        if (data.val()) {
-          const rootList = data.val();
-          let list = [];
-          Object.keys(rootList).forEach((key) => {
-            list.push(key);
-          });
-          // console.log(list);
-          this.nav_lists = list;
-
-          if (this.selected_list == "") {
-            this.selected_list = this.nav_lists[0];
-            this.changeList();
-          }
-        } else {
-          console.log("no data");
-          if (this.nav_lists.length == 0) {
-            this.nav_lists.push("新規リスト");
-          }
-          if (this.selected_list == "") {
-            this.selected_list = this.nav_lists[0];
-            this.changeList();
-          }
-        }
-      });
-    }
+    let uid = this.uid;
+    let list = [];
+    db.ref(uid).on("value", (data) => {
+      if (data.val()) {
+        const rootList = data.val();
+        Object.keys(rootList).forEach((key) => {
+          list.push(key);
+        });
+        this.aryLists = list;
+      }
+      if (this.aryLists.length === 0) this.aryLists.push("新規リスト");
+      this.selected_list = this.aryLists[0];
+      this.loadTodo();
+    });
   },
 };
 </script>

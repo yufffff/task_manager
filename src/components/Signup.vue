@@ -13,7 +13,7 @@
         v-model="password"
         v-on:keyup.enter="signUp"
       ></v-text-field>
-      <v-btn large @click="signUp" class="primary">登録</v-btn>
+      <v-btn large @click="signUp" color="success">登録</v-btn>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-text>
@@ -24,7 +24,8 @@
 </template>
 
 <script>
-import firebase from "firebase";
+import firebase from "firebase/app";
+import 'firebase/auth';
 
 export default {
   name: "Signup",
@@ -40,8 +41,8 @@ export default {
         .auth()
         .createUserWithEmailAndPassword(this.username, this.password)
         .then((user) => {
-          //   alert('Create account: ', user.email);
           this.$router.replace("/signin");
+          alert("アカウントが作成されました\rn" + this.username);
         })
         .catch((error) => {
           alert(error.message);
@@ -51,7 +52,6 @@ export default {
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1,
 h2 {

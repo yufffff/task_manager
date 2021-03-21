@@ -1,37 +1,28 @@
 <template>
-  <v-dialog
-    v-model="edit"
-    persistent
-    max-width="600px"
-  >
+  <v-dialog v-model="edit" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn v-bind="attrs" v-on="on" min-width="0">
-        <span>リスト名変更</span>
+      <v-btn icon v-bind="attrs" v-on="on">
         <v-icon>mdi-playlist-edit</v-icon>
       </v-btn>
     </template>
     <v-card>
-      <v-card-title>
-        <span class="headline">リスト名編集</span>
-      </v-card-title>
+      <v-card-title> リスト名変更 </v-card-title>
       <v-card-text>
         <v-container>
           <v-row>
-            <v-col cols="12" sm="6" md="4">
-              <v-text-field
-                v-model="editing"
-                label="変更前のリスト名"
-                readonly
-              ></v-text-field>
-            </v-col>
+            <v-text-field
+              v-model="editing"
+              label="変更前のリスト名"
+              readonly
+            ></v-text-field>
           </v-row>
           <v-row>
-            <v-col cols="12" sm="6" md="4">
-              <v-text-field
-                v-model="newListName"
-                label="変更後のリスト名"
-              ></v-text-field>
-            </v-col>
+            <v-text-field
+              v-model="newListName"
+              label="変更後のリスト名"
+              v-on:keyup.enter="editList"
+              autofocus
+            ></v-text-field>
           </v-row>
         </v-container>
       </v-card-text>
@@ -66,17 +57,17 @@ export default {
       if (this.newListName == "") {
         alert("リスト名を入力してください");
         return;
-      } 
-      this.$emit('changeListName', this.newListName);
+      }
+      this.$emit("changeListName", this.newListName);
       this.close();
     },
-    close: function() {
+    close: function () {
       this.newListName = "";
-      this.edit=false;
-    }
+      this.edit = false;
+    },
   },
   mounted: function () {
     this.newListName = "";
-  }
+  },
 };
 </script>
