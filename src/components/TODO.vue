@@ -131,20 +131,16 @@ export default {
       this.swiped = true;
     },
     addTodo: function (newItemTitle) {
-      console.log("add todo");
-
       if (this.checkItem(newItemTitle)) {
         this.items.push({
           title: newItemTitle,
           isChecked: false,
         });
-        console.log(this.selected_list);
         this.saveTodo();
       }
     },
     deleteTodo: function (eventIndex) {
-      console.log("delete todo");
-      console.log(eventIndex);
+      console.log("deleteTodo");
       this.db.ref(this.dbPath + "/" + eventIndex).remove();
       this.loadTodo();
     },
@@ -155,12 +151,9 @@ export default {
       this.saveTodo();
     },
     loadTodo: function () {
-      console.log("loaded");
-      console.log(this.aryLists);
+      console.log("loadTodo");
+      console.log(this.selected_list);
 
-      this.items = [];
-
-      // if (this.selected_list === "") this.selected_list = this.aryLists[0];
       this.dbPath = this.uid + "/" + this.selected_list + "/items";
 
       this.db.ref(this.dbPath).on("value", (data) => {
@@ -178,11 +171,11 @@ export default {
       });
     },
     saveTodo: function () {
-      console.log("save");
+      console.log("saveTodo");
       this.db.ref(this.dbPath).set(this.items);
     },
     addList: function (newListName) {
-      console.log("add list");
+      console.log("addList");
       this.aryLists.push(newListName);
       this.selected_list = newListName;
       this.items = [];
@@ -190,34 +183,25 @@ export default {
       this.loadTodo();
     },
     changeList: function () {
-      console.log("combo changed");
+      console.log("changeList");
       this.loadTodo();
     },
     changeListName: function (newListName) {
-      console.log("change list name");
-      console.log(this.aryLists.length);
-
       if (this.aryLists.length > 1) {
         let oldListName = this.selected_list;
         let dbPath = this.uid + "/" + newListName + "/items";
         this.db.ref(dbPath).set(this.items);
-        console.log(this.selected_list);
 
         this.db.ref(this.uid + "/" + this.selected_list).remove();
         this.aryLists.filter(function (list) {
           return oldListName !== list;
         });
       } else {
-        console.log(this.aryLists[0]);
         this.aryLists[0] = newListName;
-        console.log(this.aryLists[0]);
       }
-      // this.selected_list = newListName;
-      // console.log(this.selected_list);
+      this.selected_list = newListName;
     },
     checkItem: function (newItemTitle) {
-      console.log("check item");
-
       let result = true;
 
       try {
