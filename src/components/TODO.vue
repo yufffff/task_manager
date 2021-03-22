@@ -54,7 +54,6 @@
           :key="`${i}`"
           v-touch="{
             left: () => onSwipe(`${i}`),
-            right: () => (swiped = false),
           }"
         >
           <v-checkbox
@@ -72,7 +71,7 @@
             v-on:saveTodo="saveTodo"
           />
 
-          <v-icon class="sort" v-if="sortable == true">mdi-menu</v-icon>
+          <v-icon class="sort" v-if="eventIndex != `${i}` && sortable == true">mdi-menu</v-icon>
 
           <v-slide-x-reverse-transition>
             <v-btn
