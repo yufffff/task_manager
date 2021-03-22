@@ -1,26 +1,29 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import firebase from 'firebase/app'
+import 'firebase/auth'
 import TODO from '@/components/TODO'
 import Signup from '@/components/Signup'
 import Signin from '@/components/Signin'
-import firebase from 'firebase/app'
-import 'firebase/auth'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
+    // メインページ
     path: '/',
     name: 'TODO',
     component: TODO,
     meta: { requiresAuth: true }
   },
   {
+    // サインアップ
     path: '/signup',
     name: 'Signup',
     component: Signup
   },
   {
+    // サインイン
     path: '/signin',
     name: 'Signin',
     component: Signin

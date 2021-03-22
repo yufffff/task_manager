@@ -1,11 +1,14 @@
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
+import titleMixin from './util/title'
 import vuetify from './plugins/vuetify'
 import firebase from 'firebase/app'
 
+Vue.mixin(titleMixin);
 Vue.config.productionTip = false
 
+// Firebase初期化
 const config = {
   apiKey: 'AIzaSyC3J7ajLsTdq1bBk_sQd7nOBvU2XZ0IPSA',
   authDomain: 'yufffff-todo.firebaseapp.com',
@@ -18,6 +21,7 @@ const config = {
 }
 firebase.initializeApp(config);
 
+// Vueインスタンス生成
 new Vue({
   router,
   vuetify,

@@ -106,6 +106,7 @@ import EditList from "@/components/EditList";
 
 export default {
   name: "TODO",
+  title: "メインページ",
   components: {
     draggable,  // 並べ替え機能用
     NewTODO,    // 新規TODO追加

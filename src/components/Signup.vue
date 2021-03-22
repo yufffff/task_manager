@@ -30,6 +30,7 @@ import 'firebase/auth';
 
 export default {
   name: "Signup",
+  title: "サインアップ",
   data() {
     return {
       username: "", // ユーザ名
@@ -53,33 +54,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-h1,
-h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-.signup {
-  margin-top: 20px;
-
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
-}
-input {
-  margin: 10px 0;
-  padding: 10px;
-}
-</style>

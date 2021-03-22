@@ -14,7 +14,7 @@
         v-model="password"
         v-on:keyup.enter="signIn"
       ></v-text-field>
-      <v-btn large @click="signIn" class="primary">サインイン</v-btn>
+      <v-btn large @click="signIn" class="primary">ログイン</v-btn>
     </v-card-text>
     <v-divider></v-divider>
     <v-card-text>
@@ -30,6 +30,7 @@ import "firebase/auth";
 
 export default {
   name: "Signin",
+  title: "サインイン",
   data() {
     return {
       username: "", // ユーザ名
@@ -54,33 +55,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-h1,
-h2 {
-  font-weight: normal;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-.signin {
-  margin-top: 20px;
-
-  display: flex;
-  flex-flow: column nowrap;
-  justify-content: center;
-  align-items: center;
-}
-input {
-  margin: 10px 0;
-  padding: 10px;
-}
-</style>
