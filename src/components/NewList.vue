@@ -2,9 +2,10 @@
   <!-- 新規リスト追加ダイアログ -->
   <v-dialog v-model="newlist" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn icon v-bind="attrs" v-on="on">
-        <v-icon>mdi-plus-circle</v-icon>
-      </v-btn>
+      <v-list-item v-bind="attrs" v-on="on">
+        <v-list-item-icon><v-icon>mdi-playlist-plus</v-icon></v-list-item-icon>
+        <v-list-item-title>新規リスト追加</v-list-item-title>
+      </v-list-item>
     </template>
     <v-card>
       <v-card-title>

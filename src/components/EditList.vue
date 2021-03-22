@@ -2,9 +2,10 @@
   <!-- リスト名変更ダイアログ -->
   <v-dialog v-model="edit" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
-      <v-btn icon v-bind="attrs" v-on="on">
-        <v-icon>mdi-playlist-edit</v-icon>
-      </v-btn>
+      <v-list-item v-bind="attrs" v-on="on">
+        <v-list-item-icon><v-icon>mdi-playlist-edit</v-icon></v-list-item-icon>
+        <v-list-item-title>リスト名変更</v-list-item-title>
+      </v-list-item>
     </template>
     <v-card>
       <v-card-title> リスト名変更 </v-card-title>
@@ -46,6 +47,7 @@ export default {
     };
   },
   props: {
+    drawer: true,
     editing: "",  // 変更前のリスト名
   },
   methods: {
