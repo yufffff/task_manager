@@ -108,24 +108,36 @@ export default {
   name: "TODO",
   title: "メインページ",
   components: {
-    draggable,  // 並べ替え機能用
-    NewTODO,    // 新規TODO追加
-    EditTODO,   // TODO編集
-    EditList,   // リスト名変更
-    NewList,    // 新規リスト追加
+    draggable, // 並べ替え機能用
+    NewTODO, // 新規TODO追加
+    EditTODO, // TODO編集
+    EditList, // リスト名変更
+    NewList, // 新規リスト追加
   },
   data() {
     return {
-      editing: {},        // 編集中のTODO
-      sortable: true,     // 並べ替えモードフラグ
-      swiped: false,      // スワイプフラグ
-      eventIndex: null,   // TODOのインデックス
-      uid: "",            // ログイン中のユーザのID
-      db: {},             // firebase realtime database
-      aryLists: [],       // TODOリスト配列
-      selected_list: "",  // 選択中のリスト
-      items: [],          // リストに格納されているTODOの配列
+      editing: {}, // 編集中のTODO
+      sortable: true, // 並べ替えモードフラグ
+      swiped: false, // スワイプフラグ
+      eventIndex: null, // TODOのインデックス
+      aryLists: [], // TODOリスト配列
+      selected_list: "", // 選択中のリスト
+      items: [], // リストに格納されているTODOの配列
     };
+  },
+  computed: {
+    // ログインユーザ
+    user: function () {
+      return firebase.auth().currentUser;
+    },
+    // RealtimeDatabaseインスタンス
+    db: function () {
+      return firebase.database();
+    },
+    // データ参照先
+    dbPath: function () {
+      return this.user.uid + "/lists/";
+    },
   },
   methods: {
     // スワイプ時イベント
@@ -162,24 +174,26 @@ export default {
     // TODOリストを取得
     loadTodo: function () {
       console.log("loadTodo");
+
       // アイテム初期化
       this.items = [];
 
       // 選択中のリストが空の場合はタスクリストの1番目をセット
       if (this.selected_list === "") this.selected_list = this.aryLists[0];
-      this.dbPath = this.uid + "/" + this.selected_list + "/items";
+      // console.log(this.dbPath);
 
       // 選択中のリストに格納されたTODOを取得する
       this.db.ref(this.dbPath).on("value", (data) => {
+        let selected_list;
         let list = [];
         if (data) {
           const rootList = data.val();
 
           if (rootList != null) {
-            Object.keys(rootList).forEach((key) => {
-              // 選択中のリストに格納されたTODOを格納する
-              list.push(rootList[key]);
+            selected_list = rootList.filter((list) => {
+              return list.name === this.selected_list;
             });
+            list = selected_list[0].items;
           }
         }
         // アイテムに渡す
@@ -208,30 +222,30 @@ export default {
     },
     // リスト名変更
     changeListName: function (newListName) {
-      if (this.aryLists.length > 1) {
-        console.log("複数リスト")
-        // 変更前のリスト名を保持
-        let oldListName = this.selected_list;
-        // 変更後のリスト名をキーにアイテムを保存
-        let dbPath = this.uid + "/" + newListName + "/items";
-        this.db.ref(dbPath).set(this.items);
+      console.log("changeListName");
+      console.log(this.aryLists);
+      console.log(this.items);
+      let oldListName = this.selected_list;
+      let items = this.items;
+      let postData = { [newListName]: items };
+      console.log(postData);
 
-        // 変更前のキーを削除
-        this.db.ref(this.uid + "/" + this.selected_list).remove();
-        // リストから変更前のリスト名を削除
-        this.aryLists.filter(function (list) {
-          return oldListName !== list;
-        });
-        // リスト名をセレクトボックスに反映
-        this.selected_list = newListName;
+      // this.db.ref(this.user.uid).update({
+      //   oldListName: items
+      // });
+      // // リスト配列から変更前のリスト名を削除
+      // this.aryLists = this.aryLists.filter(function (list) {
+      //   return oldListName !== list;
+      // });
+      // console.log(this.aryLists);
 
-      } else {
-        alert("申し訳ございません。\r\n新規リストの名前変更は現在対応中です。")
-        console.log("新規リストのみ")
-        // this.aryLists[0] = newListName;
-        console.log(this.aryLists[0]);
-        // this.selected_list = newListName;
-      }
+      // リスト配列に変更後のリスト名を追加
+      // this.aryLists.push(newListName);
+      // console.log(this.aryLists);
+      // console.log(this.items);
+
+      // リスト名をセレクトボックスに反映
+      // this.selected_list = newListName;
     },
     // タスク名変更時にタスク名が正しいかチェックする
     checkItem: function (newItemTitle) {
@@ -271,16 +285,15 @@ export default {
   // 画面読み込み時に呼び出される
   mounted: function () {
     console.log("mounted");
-    this.db = firebase.database();  // firebase realtime database インスタンス
-    this.uid = firebase.auth().currentUser.uid; // ログイン中のユーザID
-
     // ユーザに紐づくタスクリストを取得
-    this.db.ref(this.uid).on("value", (data) => {
+    this.db.ref(this.dbPath).on("value", (data) => {
       if (data.val()) {
         const rootList = data.val();
+        console.log(rootList);
         let list = [];
-        Object.keys(rootList).forEach((key) => {
-          list.push(key);
+        Object.keys(rootList).forEach((index) => {
+          let listname = rootList[index].name;
+          list.push(listname);
         });
         // リストに格納
         this.aryLists = list;
