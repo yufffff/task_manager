@@ -1,7 +1,7 @@
 <template>
   <v-container v-on:click="eventIndex = null">
     <!-- トップバー -->
-    <v-app-bar app color="primary" dark>
+    <v-app-bar app color="primary" dark clipped-left>
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
       <v-toolbar-items>
         <v-select
@@ -15,11 +15,10 @@
           @change="changeIndex"
         ></v-select>
       </v-toolbar-items>
-      <v-spacer />
     </v-app-bar>
 
     <!-- ナビゲーションバー -->
-    <v-navigation-drawer app v-model="drawer" absolute temporary>
+    <v-navigation-drawer app v-model="drawer" clipped>
       <v-list nav dense>
         <NewList :drawer="drawer" v-on:addList="addList" />
         <EditList
@@ -33,13 +32,17 @@
           >
           <v-list-item-title>リスト削除</v-list-item-title>
         </v-list-item>
-        <v-spacer></v-spacer>
-        <v-divider></v-divider>
-        <v-list-item v-on:click="signOut()">
-          <v-list-item-icon><v-icon>mdi-logout</v-icon></v-list-item-icon>
-          <v-list-item-title>ログアウト</v-list-item-title>
-        </v-list-item>
       </v-list>
+
+      <template v-slot:append>
+        <v-divider></v-divider>
+        <div class="pa-2">
+          <v-btn block color="error" v-on:click="signOut()">
+            <v-icon>mdi-logout</v-icon>
+            <span>ログアウト</span>
+          </v-btn>
+        </div>
+      </template>
     </v-navigation-drawer>
 
     <!-- TODOリスト -->
@@ -131,7 +134,7 @@ export default {
       drawer: false,
       sortable: true, // 並べ替えモードフラグ
       swiped: false, // スワイプフラグ
-      index: null,  // リストのインデックス
+      index: null, // リストのインデックス
       eventIndex: null, // TODOのインデックス
       aryLists: [], // TODOリスト配列
       select: {}, // 選択中のリスト
@@ -150,7 +153,7 @@ export default {
   methods: {
     changeIndex: function () {
       if (this.aryLists.indexOf(this.select) < 0) return;
-      console.log("list index: " + this.aryLists.indexOf(this.select))
+      console.log("list index: " + this.aryLists.indexOf(this.select));
       this.index = this.aryLists.indexOf(this.select);
     },
     // スワイプ時イベント
