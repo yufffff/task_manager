@@ -90,7 +90,7 @@
     </draggable>
 
     <!-- フッタ― -->
-    <v-footer fixed padless>
+    <v-footer app fixed padless>
       <NewTODO v-on:addTodo="addTodo" />
       <v-bottom-navigation>
         <v-btn v-on:click="sortable = !sortable">
