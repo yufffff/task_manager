@@ -12,6 +12,7 @@
           label="選択中のリスト"
           filled
           dense
+          @change="changeIndex"
         ></v-select>
       </v-toolbar-items>
       <v-spacer />
@@ -44,7 +45,7 @@
     <!-- TODOリスト -->
     <draggable
       v-model="select.items"
-      @change="saveTodo"
+      @change="saveItems"
       handle=".sort"
       animation="200"
     >
@@ -60,7 +61,7 @@
             v-model="item.isChecked"
             :label="item.title"
             :color="(item.isChecked && 'grey') || 'primary'"
-            v-on:change="saveTodo"
+            v-on:change="saveItems"
           />
           <v-spacer></v-spacer>
 
@@ -68,10 +69,12 @@
             v-if="eventIndex != `${i}` && sortable == false"
             :editing="item"
             :sortable="sortable"
-            v-on:saveTodo="saveTodo"
+            v-on:saveTodo="saveItems"
           />
 
-          <v-icon class="sort" v-if="eventIndex != `${i}` && sortable == true">mdi-menu</v-icon>
+          <v-icon class="sort" v-if="eventIndex != `${i}` && sortable == true"
+            >mdi-menu</v-icon
+          >
 
           <v-slide-x-reverse-transition>
             <v-btn
@@ -128,6 +131,7 @@ export default {
       drawer: false,
       sortable: true, // 並べ替えモードフラグ
       swiped: false, // スワイプフラグ
+      index: null,  // リストのインデックス
       eventIndex: null, // TODOのインデックス
       aryLists: [], // TODOリスト配列
       select: {}, // 選択中のリスト
@@ -135,39 +139,51 @@ export default {
   },
   computed: {
     // RealtimeDatabaseリファレンス
-    db: function () {
+    lists: function () {
       const path = firebase.auth().currentUser.uid + "/lists";
       return firebase.database().ref(path);
     },
-    index: function () {
-      return this.aryLists.indexOf(this.select);
-    }
+    items: function () {
+      return this.lists.child(this.index).child("items");
+    },
   },
   methods: {
+    changeIndex: function () {
+      if (this.aryLists.indexOf(this.select) < 0) return;
+      console.log("list index: " + this.aryLists.indexOf(this.select))
+      this.index = this.aryLists.indexOf(this.select);
+    },
     // スワイプ時イベント
     onSwipe: function (eventIndex) {
       this.swiped = false;
       this.eventIndex = eventIndex;
       this.swiped = true;
     },
+    // TODO保存
+    saveItems: function () {
+      console.log("saveItems");
+      this.items.set(this.select.items);
+    },
     // TODO追加
     addTodo: function (newItemTitle) {
+      console.log("addTodo");
       if (this.select.items == undefined) this.select.items = [];
 
       // 登録可能なタスク名であればリストに追加する
       if (this.checkItem(newItemTitle)) {
-        this.select.items.push({
+        let newItem = {
           title: newItemTitle,
           isChecked: false,
-        });
-        this.saveTodo();
+        };
+        this.select.items.push(newItem);
+        this.saveItems();
       }
     },
     // TODO削除
     deleteTodo: function (eventIndex) {
       console.log("deleteTodo");
       this.select.items.splice(eventIndex, 1);
-      this.saveTodo();
+      this.saveItems();
     },
     // チェック済みのTODOをすべて削除する
     deleteCheckedAll: function () {
@@ -176,38 +192,33 @@ export default {
       this.select.items = this.select.items.filter(function (item) {
         return item.isChecked === false;
       });
-      this.saveTodo();
+      this.saveItems();
     },
-    // 現在の画面の状態を保存する
-    saveTodo: function () {
-      console.log("saveTodo");
-      console.log(this.index);
-      this.aryLists[this.index] = this.select;
-      // this.db.set(this.aryLists);
+    // リスト保存
+    saveLists: function () {
+      this.lists.set(this.aryLists);
     },
     // 新規リスト追加
     addList: function (newListName) {
       console.log("addList");
-      this.aryLists.push({ name: newListName });
-      console.log(this.aryLists.length)
-      this.select = this.aryLists[this.aryLists.length - 1]
+      let objNewList = { name: newListName };
+      this.aryLists.push(objNewList);
+      this.select = objNewList;
       console.log(this.aryLists);
       this.newlist = false; // ダイアログを閉じる
       this.drawer = false;
-      this.saveTodo();
+      this.saveLists();
     },
     // リスト名変更
     changeListName: function (newListName) {
-      this.select.name = newListName;
-      this.saveTodo();
       console.log("changeListName");
+      this.lists.child(this.index).child("name").set(newListName);
+      this.drawer = false;
     },
     // リスト削除
     deleteList: function () {
-      this.aryLists = this.aryLists.filter((list) => {
-        return list !== this.select;
-      });
-      this.saveTodo();
+      console.log("deleteList");
+      this.lists.child(this.index).remove();
     },
     // タスク追加時にタスク名が正しいかチェックする
     checkItem: function (newItemTitle) {
@@ -244,10 +255,9 @@ export default {
   mounted: function () {
     console.log("mounted");
     // ユーザに紐づくタスクリストを取得
-    this.db.on("value", (data) => {
+    this.lists.on("value", (data) => {
       if (data.val()) {
         this.aryLists = data.val();
-        console.log("データ取得");
       }
 
       // ユーザに紐づくタスクリストがない場合
@@ -258,7 +268,9 @@ export default {
 
       // 選択中のリストが無い場合はリストの一番目にセット
       if (!Object.keys(this.select).length) this.select = this.aryLists[0];
+      if (this.index == null) this.changeIndex();
     });
+    console.log("データ取得");
   },
 };
 </script>
