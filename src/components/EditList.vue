@@ -13,7 +13,7 @@
         <v-container>
           <v-row>
             <v-text-field
-              v-model="editing"
+              v-model="editing.name"
               label="変更前のリスト名"
               readonly
             ></v-text-field>
@@ -48,13 +48,13 @@ export default {
   },
   props: {
     drawer: true,
-    editing: "",  // 変更前のリスト名
+    editing: {},  // 変更前のリスト名
   },
   methods: {
     // 親画面のリスト名変更関数を呼び出す
     editList: function () {
       console.log("edit list");
-      if (this.editing == this.newListName) {
+      if (this.editing.name == this.newListName) {
         alert("リスト名は以前と違うものにしてください");
         return;
       }
@@ -62,6 +62,7 @@ export default {
         alert("リスト名を入力してください");
         return;
       }
+      this.editing.name = this.newListName;
       this.$emit("changeListName", this.newListName);
       this.close();
     },

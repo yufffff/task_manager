@@ -1,5 +1,5 @@
 <template>
-  <v-container v-on:click.prevent="eventIndex = null">
+  <v-container v-on:click="eventIndex = null">
     <!-- トップバー -->
     <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
@@ -23,7 +23,7 @@
         <NewList :drawer="drawer" v-on:addList="addList" />
         <EditList
           :drawer="drawer"
-          :editing="select.name"
+          :editing="select"
           v-on:changeListName="changeListName"
         />
         <v-list-item v-on:click="deleteList()">
@@ -126,7 +126,6 @@ export default {
   data() {
     return {
       drawer: false,
-      editing: {}, // 編集中のTODO
       sortable: true, // 並べ替えモードフラグ
       swiped: false, // スワイプフラグ
       eventIndex: null, // TODOのインデックス
@@ -140,6 +139,9 @@ export default {
       const path = firebase.auth().currentUser.uid + "/lists";
       return firebase.database().ref(path);
     },
+    index: function () {
+      return this.aryLists.indexOf(this.select);
+    }
   },
   methods: {
     // スワイプ時イベント
@@ -169,6 +171,7 @@ export default {
     },
     // チェック済みのTODOをすべて削除する
     deleteCheckedAll: function () {
+      console.log("deleteCheckedAll");
       if (this.select.items == undefined) return;
       this.select.items = this.select.items.filter(function (item) {
         return item.isChecked === false;
@@ -178,7 +181,9 @@ export default {
     // 現在の画面の状態を保存する
     saveTodo: function () {
       console.log("saveTodo");
-      this.db.set(this.aryLists);
+      console.log(this.index);
+      this.aryLists[this.index] = this.select;
+      // this.db.set(this.aryLists);
     },
     // 新規リスト追加
     addList: function (newListName) {
@@ -242,7 +247,6 @@ export default {
     this.db.on("value", (data) => {
       if (data.val()) {
         this.aryLists = data.val();
-        console.log(this.aryLists);
         console.log("データ取得");
       }
 
@@ -253,7 +257,6 @@ export default {
       }
 
       // 選択中のリストが無い場合はリストの一番目にセット
-      console.log(this.select);
       if (!Object.keys(this.select).length) this.select = this.aryLists[0];
     });
   },
