@@ -53,7 +53,6 @@
       animation="200"
     >
       <template v-for="(item, i) in select.items">
-        <!-- <v-divider :key="`${i}`" v-if="i !== 0"></v-divider> -->
         <v-list-item
           :key="`${i}`"
           v-touch="{
@@ -228,6 +227,9 @@ export default {
       let result = true;
 
       try {
+        // 選択中のリストがない場合
+        if (!Object.keys(this.select).length) throw new Error("保存先のリストを選択してください")
+        
         // タスク名が空の場合
         if (newItemTitle === "") throw new Error("タスク名が空っぽ！");
 
