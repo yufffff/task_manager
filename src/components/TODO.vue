@@ -150,8 +150,31 @@ export default {
     },
   },
   methods: {
+    loadLists: function () {
+      this.aryLists = [];
+      this.select = {};
+      
+      // ユーザに紐づくタスクリストを取得
+      this.lists.on("value", (data) => {
+        if (data.val()) {
+          this.aryLists = data.val();
+        }
+
+        // ユーザに紐づくタスクリストがない場合
+        if (this.aryLists.length === 0) {
+          this.aryLists.push({ name: "新規リスト" });
+          console.log("タスクリストなし");
+        }
+
+        // 選択中のリストが無い場合はリストの一番目にセット
+        if (!Object.keys(this.select).length) this.select = this.aryLists[0];
+        if (this.index == null) this.changeIndex();
+      });
+      console.log("データ取得");
+    },
     changeIndex: function () {
-      if (this.aryLists.indexOf(this.select) < 0) return;
+      if (!Object.keys(this.select).length) return;
+      console.log(this.aryLists);
       console.log("list index: " + this.aryLists.indexOf(this.select));
       this.index = this.aryLists.indexOf(this.select);
     },
@@ -164,6 +187,7 @@ export default {
     // TODO保存
     saveItems: function () {
       console.log("saveItems");
+      this.saveLists();
       this.items.set(this.select.items);
     },
     // TODO追加
@@ -195,9 +219,11 @@ export default {
         return item.isChecked === false;
       });
       this.saveItems();
+      this.loadLists();
     },
     // リスト保存
     saveLists: function () {
+      console.log("saveLists");
       this.lists.set(this.aryLists);
     },
     // 新規リスト追加
@@ -220,7 +246,9 @@ export default {
     // リスト削除
     deleteList: function () {
       console.log("deleteList");
+      console.log(this.lists.child(this.index));
       this.lists.child(this.index).remove();
+      // this.loadLists();
     },
     // タスク追加時にタスク名が正しいかチェックする
     checkItem: function (newItemTitle) {
@@ -228,8 +256,9 @@ export default {
 
       try {
         // 選択中のリストがない場合
-        if (!Object.keys(this.select).length) throw new Error("保存先のリストを選択してください")
-        
+        if (!Object.keys(this.select).length)
+          throw new Error("保存先のリストを選択してください");
+
         // タスク名が空の場合
         if (newItemTitle === "") throw new Error("タスク名が空っぽ！");
 
@@ -259,23 +288,7 @@ export default {
   // 画面読み込み時に呼び出される
   mounted: function () {
     console.log("mounted");
-    // ユーザに紐づくタスクリストを取得
-    this.lists.on("value", (data) => {
-      if (data.val()) {
-        this.aryLists = data.val();
-      }
-
-      // ユーザに紐づくタスクリストがない場合
-      if (this.aryLists.length === 0) {
-        this.aryLists.push({ name: "新規リスト", items: [] });
-        console.log("タスクリストなし");
-      }
-
-      // 選択中のリストが無い場合はリストの一番目にセット
-      if (!Object.keys(this.select).length) this.select = this.aryLists[0];
-      if (this.index == null) this.changeIndex();
-    });
-    console.log("データ取得");
+    this.loadLists();
   },
 };
 </script>
