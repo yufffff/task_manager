@@ -5,7 +5,7 @@ import titleMixin from './util/title'
 import vuetify from './plugins/vuetify'
 import firebase from 'firebase/app'
 
-Vue.mixin(titleMixin);
+// Vue.mixin(titleMixin);
 Vue.config.productionTip = false
 
 // Firebase初期化

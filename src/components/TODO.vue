@@ -219,7 +219,6 @@ export default {
         return item.isChecked === false;
       });
       this.saveItems();
-      this.loadLists();
     },
     // リスト保存
     saveLists: function () {
@@ -232,7 +231,7 @@ export default {
       let objNewList = { name: newListName };
       this.aryLists.push(objNewList);
       this.select = objNewList;
-      console.log(this.aryLists);
+      this.changeIndex();
       this.newlist = false; // ダイアログを閉じる
       this.drawer = false;
       this.saveLists();
@@ -246,9 +245,10 @@ export default {
     // リスト削除
     deleteList: function () {
       console.log("deleteList");
-      console.log(this.lists.child(this.index));
-      this.lists.child(this.index).remove();
-      // this.loadLists();
+      this.aryLists.splice(this.index, 1);
+      this.saveLists();
+      this.drawer = false;
+      this.loadLists();
     },
     // タスク追加時にタスク名が正しいかチェックする
     checkItem: function (newItemTitle) {
