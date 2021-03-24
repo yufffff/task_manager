@@ -174,7 +174,6 @@ export default {
     },
     changeIndex: function () {
       if (!Object.keys(this.select).length) return;
-      console.log(this.aryLists);
       console.log("list index: " + this.aryLists.indexOf(this.select));
       this.index = this.aryLists.indexOf(this.select);
     },
