@@ -41,24 +41,22 @@ export default {
   name: "EditTODO",
   data() {
     return {
-      edit: false,      // ダイアログ表示フラグ
-      newItemName: "",  // 変更後のタスク名
+      edit: false, // ダイアログ表示フラグ
+      newItemName: "", // 変更後のタスク名
     };
   },
   props: {
-    editing: {},  // 変更中のタスクオブジェクト
+    editing: {}, // 変更中のタスクオブジェクト
   },
   methods: {
     // 親画面のタスク名変更関数を呼び出す
     editTodo: function () {
       console.log("edit");
-      if (this.newItemName == "") {
-        alert("タスク名を入力してください");
-        return;
+      if (this.$emit("checkItem", this.newItemName)) {
+        this.editing.title = this.newItemName;
+        this.$emit("saveTodo");
+        this.edit = false;
       }
-      this.editing.title = this.newItemName;
-      this.$emit("saveTodo");
-      this.edit = false;
     },
   },
 };

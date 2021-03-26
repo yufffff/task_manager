@@ -2,7 +2,7 @@
   <v-container v-on:click="eventIndex = null">
     <!-- トップバー -->
     <v-app-bar app color="primary" dark clipped-left>
-      <v-app-bar-nav-icon @click="drawer = true"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-items>
         <v-select
           v-model="select"
@@ -18,7 +18,7 @@
     </v-app-bar>
 
     <!-- ナビゲーションバー -->
-    <v-navigation-drawer app v-model="drawer" clipped>
+    <v-navigation-drawer app v-model="drawer" clipped class="nav">
       <v-list nav dense>
         <NewList :drawer="drawer" v-on:addList="addList" />
         <EditList
@@ -34,7 +34,7 @@
         </v-list-item>
       </v-list>
 
-      <template v-slot:append>
+      <!-- <template v-slot:append> -->
         <v-divider></v-divider>
         <div class="pa-2">
           <v-btn block color="error" v-on:click="signOut()">
@@ -42,7 +42,7 @@
             <span>ログアウト</span>
           </v-btn>
         </div>
-      </template>
+      <!-- </template> -->
     </v-navigation-drawer>
 
     <!-- TODOリスト -->
@@ -72,6 +72,7 @@
             :editing="item"
             :sortable="sortable"
             v-on:saveTodo="saveItems"
+            v-on:checkItem="checkItem"
           />
 
           <v-icon class="sort" v-if="eventIndex != `${i}` && sortable == true"
@@ -153,7 +154,7 @@ export default {
     loadLists: function () {
       this.aryLists = [];
       this.select = {};
-      
+
       // ユーザに紐づくタスクリストを取得
       this.lists.on("value", (data) => {
         if (data.val()) {
@@ -227,19 +228,45 @@ export default {
     // 新規リスト追加
     addList: function (newListName) {
       console.log("addList");
-      let objNewList = { name: newListName };
-      this.aryLists.push(objNewList);
-      this.select = objNewList;
-      this.changeIndex();
-      this.newlist = false; // ダイアログを閉じる
-      this.drawer = false;
-      this.saveLists();
+      if (this.checkListName(newListName)) {
+        let objNewList = { name: newListName };
+        this.aryLists.push(objNewList);
+        this.select = objNewList;
+        this.changeIndex();
+        this.newlist = false; // ダイアログを閉じる
+        this.drawer = false;
+        this.saveLists();
+      }
     },
     // リスト名変更
     changeListName: function (newListName) {
       console.log("changeListName");
-      this.lists.child(this.index).child("name").set(newListName);
-      this.drawer = false;
+      if (this.checkListName(newListName)) {
+        this.lists.child(this.index).child("name").set(newListName);
+        this.drawer = false;
+      }
+    },
+    // リスト名チェック
+    checkListName: function (listName) {
+      console.log(this);
+      console.log("checkListName");
+      let result = true;
+
+      try {
+        // リスト名が空の場合
+        if (listName == "") throw new Error("リスト名が空っぽ");
+        // リスト名が重複している場合
+        Object.keys(this.aryLists).forEach((index) => {
+          let name = this.aryLists[index].name;
+          if (name == listName)
+            throw new Error("そのリスト名は既に存在しています");
+        });
+      } catch (err) {
+        result = false;
+        alert(err);
+      }
+
+      return result;
     },
     // リスト削除
     deleteList: function () {
@@ -251,6 +278,7 @@ export default {
     },
     // タスク追加時にタスク名が正しいかチェックする
     checkItem: function (newItemTitle) {
+      console.log("checkItem");
       let result = true;
 
       try {
@@ -291,3 +319,10 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.nav {
+  /* align-items: flex-start; */
+  -webkit-overflow-scrolling: auto;
+}
+</style>
