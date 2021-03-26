@@ -20,10 +20,15 @@
     <!-- ナビゲーションバー -->
     <v-navigation-drawer app v-model="drawer" clipped class="nav">
       <v-list nav dense>
-        <NewList :drawer="drawer" v-on:addList="addList" />
+        <NewList
+          :drawer="drawer"
+          v-on:checkListName="checkListName"
+          v-on:addList="addList"
+        />
         <EditList
           :drawer="drawer"
           :editing="select"
+          v-on:checkListName="checkListName"
           v-on:changeListName="changeListName"
         />
         <v-list-item v-on:click="deleteList()">
@@ -35,13 +40,13 @@
       </v-list>
 
       <!-- <template v-slot:append> -->
-        <v-divider></v-divider>
-        <div class="pa-2">
-          <v-btn block color="error" v-on:click="signOut()">
-            <v-icon>mdi-logout</v-icon>
-            <span>ログアウト</span>
-          </v-btn>
-        </div>
+      <v-divider></v-divider>
+      <div class="pa-2">
+        <v-btn block color="error" v-on:click="signOut()">
+          <v-icon>mdi-logout</v-icon>
+          <span>ログアウト</span>
+        </v-btn>
+      </div>
       <!-- </template> -->
     </v-navigation-drawer>
 
@@ -241,14 +246,11 @@ export default {
     // リスト名変更
     changeListName: function (newListName) {
       console.log("changeListName");
-      if (this.checkListName(newListName)) {
-        this.lists.child(this.index).child("name").set(newListName);
-        this.drawer = false;
-      }
+      this.lists.child(this.index).child("name").set(newListName);
+      this.drawer = false;
     },
     // リスト名チェック
     checkListName: function (listName) {
-      console.log(this);
       console.log("checkListName");
       let result = true;
 

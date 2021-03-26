@@ -8,9 +8,7 @@
       </v-list-item>
     </template>
     <v-card>
-      <v-card-title>
-        新規リスト作成
-      </v-card-title>
+      <v-card-title> 新規リスト作成 </v-card-title>
       <v-card-text>
         <v-container>
           <v-row>
@@ -41,16 +39,19 @@ export default {
   name: "NewList",
   data() {
     return {
-      newlist: false,   // ダイアログ表示フラグ
-      newListName: "",  // 新規リストの名称
+      newlist: false, // ダイアログ表示フラグ
+      newListName: "", // 新規リストの名称
     };
   },
   methods: {
     addList: function () {
+      console.log("NewList.vue addList");
       // 親画面のリスト追加関数呼び出し
-      this.$emit("addList", this.newListName);
-      this.newlist = false;
-      this.newListName = "";
+      if ((this.$emit("checkListName"), this.newListName)) {
+        this.$emit("addList", this.newListName);
+        this.newlist = false;
+        this.newListName = "";
+      }
     },
   },
 };

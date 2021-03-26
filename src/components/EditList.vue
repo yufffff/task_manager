@@ -42,29 +42,23 @@ export default {
   name: "EditList",
   data() {
     return {
-      edit: false,      // ダイアログ表示フラグ
-      newListName: "",  // 変更後のリスト名
+      edit: false, // ダイアログ表示フラグ
+      newListName: "", // 変更後のリスト名
     };
   },
   props: {
     drawer: true,
-    editing: {},  // 変更前のリスト名
+    editing: {}, // 変更前のリスト名
   },
   methods: {
     // 親画面のリスト名変更関数を呼び出す
     editList: function () {
       console.log("edit list");
-      if (this.editing.name == this.newListName) {
-        alert("リスト名は以前と違うものにしてください");
-        return;
+      if (this.$emit("checkListName", this.newListName)) {
+        this.editing.name = this.newListName;
+        this.$emit("changeListName", this.newListName);
+        this.close();
       }
-      if (this.newListName == "") {
-        alert("リスト名を入力してください");
-        return;
-      }
-      this.editing.name = this.newListName;
-      this.$emit("changeListName", this.newListName);
-      this.close();
     },
     // ダイアログクローズ
     close: function () {
