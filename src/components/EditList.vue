@@ -1,6 +1,6 @@
 <template>
   <!-- リスト名変更ダイアログ -->
-  <v-dialog v-model="edit" persistent max-width="600px">
+  <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-list-item v-bind="attrs" v-on="on">
         <v-list-item-icon><v-icon>mdi-playlist-edit</v-icon></v-list-item-icon>
@@ -42,33 +42,37 @@ export default {
   name: "EditList",
   data() {
     return {
-      edit: false, // ダイアログ表示フラグ
+      dialog: false, // ダイアログ表示フラグ
       newListName: "", // 変更後のリスト名
     };
   },
   props: {
     drawer: true,
-    editing: {}, // 変更前のリスト名
+    editing: {}, // 変更前のリストオブジェクト
+    checkListName: {
+      type: Function,
+      required: true,
+    },
+    changeListName: {
+      type: Function,
+      required: true,
+    }
   },
   methods: {
-    // 親画面のリスト名変更関数を呼び出す
     editList: function () {
       console.log("edit list");
-      if (this.$emit("checkListName", this.newListName)) {
+      if (this.checkListName(this.newListName) === true) {
+        // 登録可能であれば、親画面のリスト名変更関数を呼び出す
         this.editing.name = this.newListName;
-        this.$emit("changeListName", this.newListName);
+        this.changeListName(this.newListName);
         this.close();
       }
     },
     // ダイアログクローズ
     close: function () {
       this.newListName = "";
-      this.edit = false;
+      this.dialog = false;
     },
-  },
-  // 読み込み時テキストフィールドを空にする
-  mounted: function () {
-    this.newListName = "";
   },
 };
 </script>

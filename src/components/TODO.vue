@@ -22,14 +22,14 @@
       <v-list nav dense>
         <NewList
           :drawer="drawer"
-          v-on:checkListName="checkListName"
-          v-on:addList="addList"
+          :checkListName="checkListName"
+          :_addList="addList"
         />
         <EditList
           :drawer="drawer"
           :editing="select"
-          v-on:checkListName="checkListName"
-          v-on:changeListName="changeListName"
+          :checkListName="checkListName"
+          :changeListName="changeListName"
         />
         <v-list-item v-on:click="deleteList()">
           <v-list-item-icon
@@ -76,8 +76,8 @@
             v-if="eventIndex != `${i}` && sortable == false"
             :editing="item"
             :sortable="sortable"
-            v-on:saveTodo="saveItems"
-            v-on:checkItem="checkItem"
+            :checkItem="checkItem"
+            :saveTodo="saveItems"
           />
 
           <v-icon class="sort" v-if="eventIndex != `${i}` && sortable == true"
@@ -90,8 +90,7 @@
               tile
               v-if="swiped && eventIndex == `${i}`"
               v-on:click="deleteTodo(eventIndex)"
-              ><span class="white--text">削除</span></v-btn
-            >
+              ><span class="white--text">削除</span></v-btn>
           </v-slide-x-reverse-transition>
         </v-list-item>
       </template>
@@ -99,7 +98,7 @@
 
     <!-- フッタ― -->
     <v-footer app fixed padless>
-      <NewTODO v-on:addTodo="addTodo" />
+      <NewTODO :_addTodo="addTodo" :checkItem="checkItem" />
       <v-bottom-navigation>
         <v-btn v-on:click="sortable = !sortable">
           <span v-if="sortable != true">並替</span>
@@ -200,15 +199,14 @@ export default {
       console.log("addTodo");
       if (this.select.items == undefined) this.select.items = [];
 
-      // 登録可能なタスク名であればリストに追加する
-      if (this.checkItem(newItemTitle)) {
-        let newItem = {
-          title: newItemTitle,
-          isChecked: false,
-        };
-        this.select.items.push(newItem);
-        this.saveItems();
-      }
+      // 追加用オブジェクト
+      let newItem = {
+        title: newItemTitle,
+        isChecked: false,
+      };
+
+      this.select.items.push(newItem);
+      this.saveItems();
     },
     // TODO削除
     deleteTodo: function (eventIndex) {
@@ -268,6 +266,7 @@ export default {
         alert(err);
       }
 
+      console.log("result: " + result);
       return result;
     },
     // リスト削除
@@ -292,11 +291,13 @@ export default {
         if (newItemTitle === "") throw new Error("タスク名が空っぽ！");
 
         // タスク名が重複している場合
-        Object.keys(this.select.items).forEach((key) => {
-          let title = this.select.items[key].title;
-          if (title == newItemTitle)
-            throw new Error("そのタスク名は既に存在しています");
-        });
+        if (this.select.items) {
+          Object.keys(this.select.items).forEach((key) => {
+            let title = this.select.items[key].title;
+            if (title == newItemTitle)
+              throw new Error("そのタスク名は既に存在しています");
+          });
+        }
       } catch (err) {
         result = false;
         alert(err);

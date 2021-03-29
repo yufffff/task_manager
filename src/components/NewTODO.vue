@@ -1,19 +1,11 @@
 <template>
   <!-- 新規タスク追加ダイアログ -->
-  <v-dialog v-model="newTodo" persistent max-width="600px">
+  <v-dialog v-model="dialog" persistent max-width="600px">
     <template v-slot:activator="{ on, attrs }">
       <v-fab-transition>
-        <v-btn
-          color="secondary"
-          dark
-          absolute
-          right
-          top
-          fab
-          v-bind="attrs"
-          v-on="on"
-          ><v-icon>mdi-plus</v-icon></v-btn
-        >
+        <v-btn color="secondary" dark absolute right top fab v-bind="attrs" v-on="on">
+          <v-icon>mdi-plus</v-icon>
+        </v-btn>
       </v-fab-transition>
     </template>
     <v-card>
@@ -31,7 +23,7 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn color="blue darken-1" text @click="newTodo = false">
+        <v-btn color="blue darken-1" text @click="dialog = false">
           キャンセル
         </v-btn>
         <v-btn color="blue darken-1" text @click="addTodo"> 追加 </v-btn>
@@ -44,16 +36,28 @@ export default {
   name: "NewTODO",
   data() {
     return {
-      newTodo: false,   // ダイアログ表示フラグ
+      dialog: false, // ダイアログ表示フラグ
       newItemTitle: "", // タスク名称
     };
+  },
+  props: {
+    checkItem: {
+      type: Function,
+      required: true,
+    },
+    _addTodo: {
+      type: Function,
+      required: true,
+    },
   },
   methods: {
     // 親画面のタスク追加関数を呼び出す
     addTodo: function () {
-      this.$emit("addTodo", this.newItemTitle);
-      this.newTodo = false;
-      this.newItemTitle = "";
+      if (this.checkItem(this.newItemTitle) === true) {
+        this._addTodo(this.newItemTitle);
+        this.dialog = false;
+        this.newItemTitle = "";
+      }
     },
   },
 };
