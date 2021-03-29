@@ -55,18 +55,17 @@ export default {
     }
   },
   methods: {
-    // 親画面のタスク名変更関数を呼び出す
     editTodo: function () {
       console.log("edit");
+      // 変更後のタスク名をチェック
       if (this.checkItem(this.newItemName) === true) {
         this.editing.title = this.newItemName;
+        // 親画面のタスク名変更関数を呼び出す
         this.saveTodo();
         this.dialog = false;
+        this.newItemName = "";
       }
     },
-  },
-  mounted: function () {
-    this.newItemName = "";
   },
 };
 </script>

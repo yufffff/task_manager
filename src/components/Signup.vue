@@ -53,7 +53,7 @@ export default {
         .createUserWithEmailAndPassword(this.username, this.password)
         .then((user) => {
           this.$router.replace("/signin");
-          alert("アカウントが作成されました\rn" + this.username);
+          alert("アカウントが作成されました\r\n" + this.username);
         })
         .catch((error) => {
           alert(error.message);

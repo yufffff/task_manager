@@ -90,7 +90,8 @@
               tile
               v-if="swiped && eventIndex == `${i}`"
               v-on:click="deleteTodo(eventIndex)"
-              ><span class="white--text">削除</span></v-btn>
+              ><span class="white--text">削除</span></v-btn
+            >
           </v-slide-x-reverse-transition>
         </v-list-item>
       </template>
@@ -307,12 +308,15 @@ export default {
     },
     // ログアウト
     signOut: function () {
-      firebase
-        .auth()
-        .signOut()
-        .then(() => {
-          this.$router.push("/signin", () => {});
-        });
+      let res = confirm("ログアウトします。\r\nよろしいですか？");
+      if (res == true) {
+        firebase
+          .auth()
+          .signOut()
+          .then(() => {
+            this.$router.push("/signin", () => {});
+          });
+      }
     },
   },
   // 画面読み込み時に呼び出される
